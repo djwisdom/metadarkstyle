@@ -919,24 +919,28 @@ begin
     Exit;
   end;
 
-  if Msg = WM_ERASEBKGND then
+  {if Msg = WM_ERASEBKGND then
   begin
     StatusBar:= TStatusBar(Info^.WinControl);
     TWin32WSStatusBar.DoUpdate(StatusBar);
-  end;
+  end;}
 
-  if ((Msg = WM_PAINT) Or (Msg = WM_ERASEBKGND) ) then
+  if ((Msg = WM_PAINT) Or (Msg = WM_ERASEBKGND)) then
   begin
     StatusBar:= TStatusBar(Info^.WinControl);
-
     TWin32WSStatusBar.DoUpdate(StatusBar);
+
+    {if Msg<>WM_ERASEBKGND then
+      TWin32WSStatusBar.DoUpdate(StatusBar);
+    Result:= WindowProc(Window, Msg, WParam, LParam);
+    exit;}
 
     DC:= BeginPaint(Window, @ps);
 
     LCanvas:= TCanvas.Create;
     try
       LCanvas.Handle:= DC;
-      LCanvas.Brush.Color:= SysColor[COLOR_MENUHILIGHT];
+      LCanvas.Brush.Color:= SysColor[COLOR_BTNHIGHLIGHT];
       LCanvas.FillRect(ps.rcPaint);
 
       X:= 1;
