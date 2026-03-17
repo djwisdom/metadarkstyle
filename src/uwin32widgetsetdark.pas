@@ -911,6 +911,7 @@ var
   Detail:TThemedElementDetails;
   Rect:trect;
   gripSize: TSize;
+  TextCenter:integer;
 begin
   Info:= GetWin32WindowInfo(Window);
   if (Info = nil) or (Info^.WinControl = nil) then
@@ -948,14 +949,25 @@ begin
       LCanvas.Font := Info^.WinControl.Font;
       LCanvas.Font.Color:= SysColor[COLOR_BTNTEXT];
       LCanvas.Pen.Color:= SysColor[COLOR_GRAYTEXT];
+      TextCenter:= (StatusBar.Height - LCanvas.TextHeight('Ag')) div 2;
       if StatusBar.SimplePanel then
-         LCanvas.TextOut(X+3, (StatusBar.Height - LCanvas.TextHeight('Ag')) div 2, StatusBar.SimpleText)
+         LCanvas.TextOut(X+3, TextCenter, StatusBar.SimpleText)
       else
       for Index:= 0 to StatusBar.Panels.Count - 1 do
       begin
         APanel:= StatusBar.Panels[Index];
+        Rect:=StatusBar.ClientRect;
         if APanel.Width>0 then begin
-          LCanvas.TextOut(X+1, (StatusBar.Height - LCanvas.TextHeight('Ag')) div 2, APanel.Text);
+          case APanel.Style of
+            psText:
+              LCanvas.TextOut(X+1, TextCenter, APanel.Text);
+            psOwnerDraw:begin
+              Rect.Left:=X;
+              Rect.Right:=x+APanel.Width;
+              if Assigned(StatusBar.OnDrawPanel) then
+                StatusBar.OnDrawPanel(StatusBar, APanel, Rect);
+            end;
+          end;
           if Index<>(StatusBar.Panels.Count - 1)then begin
             X+= APanel.Width;
             LCanvas.Line(x-2, ps.rcPaint.Top+3, x-2, ps.rcPaint.Bottom-3);
